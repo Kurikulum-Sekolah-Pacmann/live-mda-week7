@@ -1,0 +1,36 @@
+s3-conn:
+  conn_type: aws
+  description: Koneksi ke minio / s3 (data lake)
+  extra: '{"endpoint_url": "http://minio:9000"}'
+  host: ''
+  login: minio
+  password: minio123
+  port: null
+  schema: ''
+source-db:
+  conn_type: postgres
+  description: Bikes Store data source
+  extra: ''
+  host: sources
+  login: postgres
+  password: postgres
+  port: 5432 
+  schema: postgres
+slack_conn:
+  conn_type: slack
+  description: Alerting
+  extra: '{"timeout": null}'
+  host: ''
+  login: ''
+  password:                         # Fill the token here
+  port: null
+  schema: ''
+warehouse:
+  conn_type: postgres
+  description: Koneksi ke data warehouse
+  extra: '{}'
+  host: warehouse
+  login: postgres
+  password: postgres
+  port: 5432
+  schema: postgres

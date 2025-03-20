@@ -1,0 +1,12 @@
+{
+    "INCREMENTAL_MODE": "False",
+    "LIST_EXTRACT": ["products", "website_sessions", "website_pageviews", "orders", "order_items"],
+    "TABLE_LIST": {
+        "dim_products": ["product_nk"],
+        "dim_users": ["user_id"],
+        "fact_sessions": ["session_nk"],
+        "fact_order_items": ["order_nk", "order_item_nk"],
+        "fact_pageviews": ["pageview_nk"]
+    },
+    "N_CLUSTER":"3"
+}

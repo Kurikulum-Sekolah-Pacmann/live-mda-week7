@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  warehouse:
+    image: postgres:latest
+    container_name: warehouse
+    restart: always
+    environment:
+      - POSTGRES_DB=${SRC_POSTGRES_DB}
+      - POSTGRES_USEfR=${SRC_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${SRC_POSTGRES_PASSWORD}
+    ports:
+      - ${SRC_POSTGRES_PORT}:5432
+    networks:
+      - airflow-networks
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d
+      - warehouse-volume:/var/lib/postgresql/data
+
+
+networks:
+  airflow-networks:
+    external: true
+    name: airflow-networks
+
+volumes:
+  warehouse-volume:
+    driver: local
+    name: warehouse-volume

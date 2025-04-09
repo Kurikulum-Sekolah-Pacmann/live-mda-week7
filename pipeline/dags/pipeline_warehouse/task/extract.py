@@ -111,7 +111,6 @@ class Extract:
                 key=f"extract_info-{schema}.{table}",
                 value={"status": "skipped", "data_date": formatted_date}
             )
-            raise AirflowSkipException(f"Table '{schema}.{table}' doesn't have new data. Skipped...")
         else:
             try:
                 # df = pd.DataFrame(messages)

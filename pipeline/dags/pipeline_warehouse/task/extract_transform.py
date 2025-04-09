@@ -52,6 +52,8 @@ class Transform:
                 'model_year', 'list_price', 'updated_at'
             ]].drop_duplicates(subset=['product_nk'])
 
+            logging.info(f"Starting to consume from topic: {df_warehouse}")
+
             return df_warehouse
     
     @staticmethod
@@ -124,10 +126,10 @@ class Transform:
         else:
             df_staffs = pd.json_normalize([msg['payload'] for msg in staffs])
             # Rename kolom sesuai warehouse
-            df = df_staffs.rename(columns={
+            df_staffs = df_staffs.rename(columns={
                     'staff_id': 'staff_nk'
                 })
-            df['updated_at'] = pd.Timestamp.now()   
+            df_staffs['updated_at'] = pd.Timestamp.now()   
             df_dim_staff = df_staffs[[
                 'staff_nk', 'first_name', 'last_name', 'email', 'phone',
                 'active', 'manager_id', 'created_at', 'updated_at'

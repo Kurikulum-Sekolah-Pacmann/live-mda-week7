@@ -8,6 +8,9 @@ from datetime import datetime
 from airflow.exceptions import AirflowSkipException, AirflowException
 from confluent_kafka import Consumer
 from helper.s3 import S3
+from airflow.providers.postgres.hooks.postgres import PostgresHook
+from datetime import timedelta
+
 
 
 

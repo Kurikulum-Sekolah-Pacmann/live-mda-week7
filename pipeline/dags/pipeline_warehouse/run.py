@@ -1,7 +1,7 @@
 from airflow.decorators import dag
 from airflow.models import Variable
 from pendulum import datetime
-from pipeline_warehouse.tasks.main import main_etl
+from pipeline_warehouse.task.main import main_etl
 from helper.callbacks.slack_notifier import slack_notifier
 
 # For slack alerting

@@ -116,7 +116,7 @@ class Extract:
 
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
-                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "message": df}
+                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "message": df['payload'].to_json(orient='records')}
                 )
                 
                 return df

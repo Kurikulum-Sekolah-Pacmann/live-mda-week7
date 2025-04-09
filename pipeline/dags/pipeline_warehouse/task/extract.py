@@ -116,14 +116,14 @@ class Extract:
 
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
-                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "message": df[0]}
+                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "message": df}
                 )
                 
                 return df
 
             except Exception as e:
-                logging.error(f"Error when writing {schema}.{table} to MinIO: {str(e)}")
-                raise AirflowException(f"Error when writing {schema}.{table} to MinIO: {str(e)}")
+                logging.error(f"Error: {str(e)}")
+                raise AirflowException(f"Error {str(e)}")
             
     
     @staticmethod

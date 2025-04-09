@@ -67,7 +67,7 @@ class Transform:
         if df_customers.empty:
             raise AirflowSkipException(f"Dataframe for 'customers' is empty. Skipped...")
         else:
-            df_customers = pd.json_normalize(df_customers['payload'])
+            df_customers = df_customers['payload']
             # Rename kolom sesuai warehouse
             df = df_customers.rename(columns={
                     'customer_id': 'customer_nk'

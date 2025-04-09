@@ -13,7 +13,7 @@ class Transform:
     """
 
     @staticmethod
-    def _dim_products(**kwargs) -> pd.DataFrame:
+    def _dim_product(**kwargs) -> pd.DataFrame:
 
         try:
             df_products = Extract._kafka(topic='source_production_products', **kwargs)

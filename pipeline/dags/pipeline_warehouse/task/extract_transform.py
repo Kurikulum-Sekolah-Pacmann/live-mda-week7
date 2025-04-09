@@ -150,72 +150,72 @@ class Transform:
 
         if not orders or not order_items:
             raise AirflowSkipException("No data found. Skipping...")
+        else:
+            try:
+                df_orders = pd.json_normalize([msg['payload'] for msg in orders])
+                df_order_items = pd.json_normalize([msg['payload'] for msg in order_items])
 
-        try:
-            df_orders = pd.json_normalize([msg['payload'] for msg in orders])
-            df_order_items = pd.json_normalize([msg['payload'] for msg in order_items])
+                # Lookup tables
+                dim_date = Extract._dwh(schema='public', table_name='dim_date', **kwargs)
+                dim_product = Extract._dwh(schema='public', table_name='dim_product', **kwargs)
+                dim_store = Extract._dwh(schema='public', table_name='dim_store', **kwargs)
+                dim_staff = Extract._dwh(schema='public', table_name='dim_staff', **kwargs)
+                dim_customer = Extract._dwh(schema='public', table_name='dim_customer', **kwargs)
 
-            # Lookup tables
-            dim_date = Extract._dwh(schema='public', table_name='dim_date', **kwargs)
-            dim_product = Extract._dwh(schema='public', table_name='dim_product', **kwargs)
-            dim_store = Extract._dwh(schema='public', table_name='dim_store', **kwargs)
-            dim_staff = Extract._dwh(schema='public', table_name='dim_staff', **kwargs)
-            dim_customer = Extract._dwh(schema='public', table_name='dim_customer', **kwargs)
+                # Merge order_items + orders
+                df = pd.merge(df_order_items, df_orders, on='order_id', how='left')
 
-            # Merge order_items + orders
-            df = pd.merge(df_order_items, df_orders, on='order_id', how='left')
+                # Map FK fields using natural keys
+                df['product_id'] = df['product_id'].map(dict(zip(dim_product['product_nk'], dim_product['product_id'])))
+                df['store_id'] = df['store_id'].map(dict(zip(dim_store['store_nk'], dim_store['store_id'])))
+                df['staff_id'] = df['staff_id'].map(dict(zip(dim_staff['staff_nk'], dim_staff['staff_id'])))
+                df['customer_id'] = df['customer_id'].map(dict(zip(dim_customer['customer_nk'], dim_customer['customer_id'])))
 
-            # Map FK fields using natural keys
-            df['product_id'] = df['product_id'].map(dict(zip(dim_product['product_nk'], dim_product['product_id'])))
-            df['store_id'] = df['store_id'].map(dict(zip(dim_store['store_nk'], dim_store['store_id'])))
-            df['staff_id'] = df['staff_id'].map(dict(zip(dim_staff['staff_nk'], dim_staff['staff_id'])))
-            df['customer_id'] = df['customer_id'].map(dict(zip(dim_customer['customer_nk'], dim_customer['customer_id'])))
+                # Convert numeric fields
+                df['list_price'] = pd.to_numeric(df['list_price'], errors='coerce')
+                df['discount'] = pd.to_numeric(df['discount'], errors='coerce').fillna(0)
 
-            # Convert numeric fields
-            df['list_price'] = pd.to_numeric(df['list_price'], errors='coerce')
-            df['discount'] = pd.to_numeric(df['discount'], errors='coerce').fillna(0)
+                # Convert integer date to datetime
+                for col in ['order_date', 'required_date', 'shipped_date']:
+                    df[col + '_dt'] = pd.to_datetime('1970-01-01') + pd.to_timedelta(df[col], unit='D')
+                    df[col + '_str'] = df[col + '_dt'].dt.strftime('%Y-%m-%d')
 
-            # Convert integer date to datetime
-            for col in ['order_date', 'required_date', 'shipped_date']:
-                df[col + '_dt'] = pd.to_datetime('1970-01-01') + pd.to_timedelta(df[col], unit='D')
-                df[col + '_str'] = df[col + '_dt'].dt.strftime('%Y-%m-%d')
+                # Map date_id from dim_date
+                date_map = dict(zip(dim_date['date_actual'].astype(str), dim_date['date_id']))
+                for col in ['order_date', 'required_date', 'shipped_date']:
+                    df[col + '_id'] = df[col + '_str'].map(date_map)
 
-            # Map date_id from dim_date
-            date_map = dict(zip(dim_date['date_actual'].astype(str), dim_date['date_id']))
-            for col in ['order_date', 'required_date', 'shipped_date']:
-                df[col + '_id'] = df[col + '_str'].map(date_map)
+                # Add timestamps
+                now = pd.Timestamp.now()
+                df['created_at'] = now
+                df['updated_at'] = now
 
-            # Add timestamps
-            now = pd.Timestamp.now()
-            df['created_at'] = now
-            df['updated_at'] = now
+                # Final projection & renaming
+                df_fact = df[[
+                    'order_id',
+                    'item_id',
+                    'customer_id',
+                    'store_id',
+                    'staff_id',
+                    'product_id',
+                    'order_status',
+                    'order_date_id',
+                    'required_date_id',
+                    'shipped_date_id',
+                    'quantity',
+                    'list_price',
+                    'discount',
+                    'created_at',
+                    'updated_at'
+                ]].rename(columns={
+                    'order_id': 'order_nk',
+                    'item_id': 'item_nk',
+                    'order_date_id': 'order_date',
+                    'required_date_id': 'required_date',
+                    'shipped_date_id': 'shipped_date'
+                })
 
-            # Final projection & renaming
-            df_fact = df[[
-                'order_id',
-                'item_id',
-                'customer_id',
-                'store_id',
-                'staff_id',
-                'product_id',
-                'order_status',
-                'order_date_id',
-                'required_date_id',
-                'shipped_date_id',
-                'quantity',
-                'list_price',
-                'discount',
-                'created_at',
-                'updated_at'
-            ]].rename(columns={
-                'order_id': 'order_nk',
-                'item_id': 'item_nk',
-                'order_date_id': 'order_date',
-                'required_date_id': 'required_date',
-                'shipped_date_id': 'shipped_date'
-            })
+                return df_fact
 
-            return df_fact
-
-        except Exception as e:
-            raise AirflowException(f"Transformation error: {str(e)}")
+            except Exception as e:
+                raise AirflowException(f"Transformation error: {str(e)}")

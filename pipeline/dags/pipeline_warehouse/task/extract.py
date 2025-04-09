@@ -43,7 +43,7 @@ class Extract:
             raise AirflowException(f"Topic name '{topic}' format tidak sesuai (source.schema.table_name)")
 
         # Initialize Kafka consumer
-        if topic == 'brands' or topic == 'categories':
+        if topic == 'source.production.brands' or topic == 'source.production.categories':
             id_name = f"{topic}-{uuid.uuid4()}"
         else:
             id_name = topic

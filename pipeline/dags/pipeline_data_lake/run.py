@@ -14,7 +14,7 @@ default_args = {
 @dag(
     dag_id='pipeline_datalake',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
-    schedule="@once",  # biar tidak terjadwal ulang
+    schedule_interval=None, 
     catchup=False,
     default_args=default_args,
     tags=["streaming","data_lake"]

@@ -110,12 +110,13 @@ class Extract:
             try:
                 logging.info(f"Converting {len(messages)} messages to DataFrame for {schema}.{table}")
                 df = pd.DataFrame(messages)
-                df = df.astype(str)
+                for col in df.select_dtypes(include=['object']).columns:
+                    df[col] = df[col].astype(str)
                 
 
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
-                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "sample_data": df}
+                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages)}
                 )
                 
                 return df

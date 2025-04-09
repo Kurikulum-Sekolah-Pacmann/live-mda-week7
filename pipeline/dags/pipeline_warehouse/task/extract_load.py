@@ -110,6 +110,8 @@ class Extract:
             try:
                 logging.info(f"Converting {len(messages)} messages to DataFrame for {schema}.{table}")
                 df = pd.DataFrame(messages)
+                if 'schema' in df.columns:
+                    df['schema'] = df['schema'].astype(str)
 
                 # Convert to Parquet
                 parquet_buffer = BytesIO()

@@ -7,7 +7,7 @@ from pipeline_warehouse.task.extract import Extract
 from pipeline_warehouse.task.extract_transform import Transform
 from pipeline_warehouse.task.load import Load
 
-def transform_wrapper(task_info, incremental, **context):
+def transform_wrapper(task_info, **context):
     """
     Wrapper for transform function to handle XCom pushing.
     
@@ -21,7 +21,6 @@ def transform_wrapper(task_info, incremental, **context):
     """
     table_name = task_info[0]
     transform_func = task_info[1]
-    table_extract = task_info[2]
     
     # Call the transform function with the proper context
     df = transform_func(**context)

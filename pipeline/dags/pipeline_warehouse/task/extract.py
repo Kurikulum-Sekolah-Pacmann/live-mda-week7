@@ -115,10 +115,10 @@ class Extract:
 
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
-                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages)}
+                    value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "sample_data": df}
                 )
                 
-                return df['payload']
+                return df
 
             except Exception as e:
                 logging.error(f"Error when writing {schema}.{table} to MinIO: {str(e)}")

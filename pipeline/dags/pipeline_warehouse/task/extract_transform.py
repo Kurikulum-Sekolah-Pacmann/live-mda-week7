@@ -26,7 +26,7 @@ class Transform:
             raise AirflowException(f"Error: {str(e)}")
 
         if not products:
-            logging.info(f"No messages found")
+            raise AirflowSkipException("No data found. Skipping...")
         else:
              # get "payload"
             df_products = pd.json_normalize([msg['payload'] for msg in products])
@@ -67,7 +67,7 @@ class Transform:
             raise AirflowException(f"Error: {str(e)}")
 
         if not customer:
-            logging.info(f"No messages found")
+            raise AirflowSkipException("No data found. Skipping...")
         else:
             #msg to dataframe
             df_customers = pd.json_normalize([msg['payload'] for msg in customer])
@@ -96,7 +96,7 @@ class Transform:
             raise AirflowException(f"Error: {str(e)}")
 
         if not stores:
-            logging.info(f"No messages found")
+            raise AirflowSkipException("No data found. Skipping...")
         else:
             df_stores = pd.json_normalize([msg['payload'] for msg in stores])
             # Rename kolom sesuai warehouse
@@ -122,7 +122,7 @@ class Transform:
             raise AirflowException(f"Error: {str(e)}")
 
         if not staffs:
-            logging.info(f"No messages found")
+            raise AirflowSkipException("No data found. Skipping...")
         else:
             df_staffs = pd.json_normalize([msg['payload'] for msg in staffs])
             # Rename kolom sesuai warehouse
@@ -149,7 +149,7 @@ class Transform:
             raise AirflowException(f"Error during extraction: {str(e)}")
 
         if not orders or not order_items:
-            logging.info(f"No messages found")
+            raise AirflowSkipException("No data found. Skipping...")
 
         try:
             df_orders = pd.json_normalize([msg['payload'] for msg in orders])

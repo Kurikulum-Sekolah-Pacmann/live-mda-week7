@@ -12,7 +12,7 @@ default_args = {
 
 # Define the DAG with its properties
 @dag(
-    dag_id='streaming_kafka_to_datalake',
+    dag_id='pipeline_datalake',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
     schedule="@once",  # biar tidak terjadwal ulang
     catchup=False,

@@ -14,7 +14,7 @@ default_args = {
     dag_id='pipeline_warehouse',
     description='Streaming data and load into warehouse area',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
-    schedule_interval=None,  # No schedule, will run continuously
+    schedule_interval='* * * * *',  # every minute
     catchup=False,
     default_args=default_args,
     tags=["streaming", "warehouse"]

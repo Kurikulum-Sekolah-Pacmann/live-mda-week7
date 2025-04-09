@@ -17,9 +17,9 @@ class Transform:
     def _dim_product(**kwargs) -> pd.DataFrame:
 
         try:
-            df_products = Extract._kafka(topic='source.production.products', **kwargs)
-            df_brands = Extract._kafka(topic='source.production.brands', **kwargs)
-            df_categories = Extract._kafka(topic='source.production.categories', **kwargs)
+            products = Extract._kafka(topic='source.production.products', **kwargs)
+            brand = Extract._kafka(topic='source.production.brands', **kwargs)
+            categories = Extract._kafka(topic='source.production.categories', **kwargs)
             
            
         except Exception as e:
@@ -29,9 +29,9 @@ class Transform:
             raise AirflowSkipException(f"Dataframe for 'products' is empty. Skipped...")
         else:
              # get "payload"
-            df_products = pd.json_normalize(df_products['payload'])
-            df_brands = pd.json_normalize(df_brands['payload'])
-            df_categories = pd.json_normalize(df_categories['payload'])
+            df_products = pd.json_normalize([msg['payload'] for msg in products])
+            df_brands = pd.json_normalize([msg['payload'] for msg in brand])
+            df_categories = pd.json_normalize([msg['payload'] for msg in categories])
 
             # Join dengan brand
             df = df_products.merge(df_brands[['brand_id', 'brand_name']], on='brand_id', how='left')
@@ -61,7 +61,6 @@ class Transform:
         """
         try:
             customer = Extract._kafka(topic='source.sales.customers', **kwargs)
-            # logging.info(f"Finished extract data {customer}")
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
@@ -75,11 +74,11 @@ class Transform:
                     'customer_id': 'customer_nk'
                 })
             df['updated_at'] = pd.Timestamp.now()   
-            # df_dim_customer = df[[
-            #     'customer_nk', 'first_name', 'last_name', 'phone',
-            #     'email', 'street', 'city', 'state', 'zip_code',
-            #      'updated_at'
-            # ]].drop_duplicates(subset=['customer_nk'])
+            df_dim_customer = df[[
+                'customer_nk', 'first_name', 'last_name', 'phone',
+                'email', 'street', 'city', 'state', 'zip_code',
+                 'updated_at'
+            ]].drop_duplicates(subset=['customer_nk'])
 
             return df         
         
@@ -89,7 +88,7 @@ class Transform:
         Transform store data.
         """
         try:
-            df_stores = Extract._kafka(topic='source.sales.stores', **kwargs)
+            stores = Extract._kafka(topic='source.sales.stores', **kwargs)
            
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
@@ -97,7 +96,7 @@ class Transform:
         if df_stores.empty:
             raise AirflowSkipException(f"Dataframe for 'stores' is empty. Skipped...")
         else:
-            df_stores = pd.json_normalize(df_stores['payload'])
+            df_stores = pd.json_normalize([msg['payload'] for msg in stores])
             # Rename kolom sesuai warehouse
             df = df_stores.rename(columns={
                     'store_id': 'store_nk'
@@ -116,14 +115,14 @@ class Transform:
         Transform staff data.
         """
         try:
-            df_staffs = Extract._kafka(topic='source.sales.staffs', **kwargs)
+            staffs = Extract._kafka(topic='source.sales.staffs', **kwargs)
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
         if df_staffs.empty:
             raise AirflowSkipException(f"Dataframe for 'staffs' is empty. Skipped...")
         else:
-            df_staffs = pd.json_normalize(df_staffs['payload'])
+            df_staffs = pd.json_normalize([msg['payload'] for msg in staffs])
             # Rename kolom sesuai warehouse
             df = df_staffs.rename(columns={
                     'staff_id': 'staff_nk'
@@ -142,8 +141,8 @@ class Transform:
         Transform order data to match fact_order schema.
         """
         try:
-            df_orders = Extract._kafka(topic='source.sales.orders', **kwargs)
-            df_order_items = Extract._kafka(topic='source.sales.order_items', **kwargs)
+            orders = Extract._kafka(topic='source.sales.orders', **kwargs)
+            order_items = Extract._kafka(topic='source.sales.order_items', **kwargs)
 
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
@@ -151,8 +150,8 @@ class Transform:
         if df_orders.empty:
             raise AirflowSkipException(f"Dataframe for 'orders' is empty. Skipped...")
         else:
-            df_orders = pd.json_normalize(df_orders['payload'])
-            df_order_items = pd.json_normalize(df_order_items['payload'])
+            df_orders = pd.json_normalize([msg['payload'] for msg in orders])
+            df_order_items = pd.json_normalize([msg['payload'] for msg in order_items])
             # Lookup tables
             
             dim_date = Extract._dwh(schema='public', table_name='dim_date', **kwargs)

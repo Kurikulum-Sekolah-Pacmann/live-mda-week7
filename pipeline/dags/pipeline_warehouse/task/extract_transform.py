@@ -61,7 +61,7 @@ class Transform:
         """
         try:
             customer = Extract._kafka(topic='source.sales.customers', **kwargs)
-            logging.info(f"Finished extract data {customer}")
+            # logging.info(f"Finished extract data {customer}")
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 

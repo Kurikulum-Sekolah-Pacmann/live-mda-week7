@@ -16,9 +16,9 @@ class Transform:
     def _dim_product(**kwargs) -> pd.DataFrame:
 
         try:
-            df_products = Extract._kafka(topic='source_production_products', **kwargs)
-            df_brands = Extract._kafka(topic='source_production_brands', **kwargs)
-            df_categories = Extract._kafka(topic='source_production_categories', **kwargs)
+            df_products = Extract._kafka(topic='source.production.products', **kwargs)
+            df_brands = Extract._kafka(topic='source.production.brands', **kwargs)
+            df_categories = Extract._kafka(topic='source.production.categories', **kwargs)
             
             # get "payload"
             df_products = pd.json_normalize(df_products['payload'])
@@ -57,7 +57,7 @@ class Transform:
         Transform customer data.
         """
         try:
-            df_customers = Extract._kafka(topic='source_sales_customers', **kwargs)
+            df_customers = Extract._kafka(topic='source.sales.customers', **kwargs)
             df_customers = pd.json_normalize(df_customers['payload'])
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
@@ -84,7 +84,7 @@ class Transform:
         Transform store data.
         """
         try:
-            df_stores = Extract._kafka(topic='source_sales_stores', **kwargs)
+            df_stores = Extract._kafka(topic='source.sales.stores', **kwargs)
             df_stores = pd.json_normalize(df_stores['payload'])
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
@@ -110,7 +110,7 @@ class Transform:
         Transform staff data.
         """
         try:
-            df_staffs = Extract._kafka(topic='source_sales_staffs', **kwargs)
+            df_staffs = Extract._kafka(topic='source.sales.staffs', **kwargs)
             df_staffs = pd.json_normalize(df_staffs['payload'])
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")

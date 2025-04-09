@@ -6,6 +6,7 @@ from pipeline_warehouse.task.extract import Extract
 import pandas as pd
 import pytz
 import requests
+import logging
 
 class Transform:
     """
@@ -60,6 +61,7 @@ class Transform:
         """
         try:
             customer = Extract._kafka(topic='source.sales.customers', **kwargs)
+            logging.info(f"Finished extract data {customer}")
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 

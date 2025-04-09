@@ -3,9 +3,9 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 import pandas as pd
 
-from pipeline_warehouse.tasks.extract import Extract
-from pipeline_warehouse.tasks.extract_transform import Transform
-from pipeline_warehouse.tasks.load import Load
+from pipeline_warehouse.task.extract import Extract
+from pipeline_warehouse.task.extract_transform import Transform
+from pipeline_warehouse.task.load import Load
 
 def transform_wrapper(task_info, incremental, **context):
     """

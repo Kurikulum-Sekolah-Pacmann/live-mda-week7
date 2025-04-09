@@ -1,7 +1,7 @@
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.exceptions import AirflowSkipException, AirflowException
 from datetime import timedelta
-from pipeline_warehouse.tasks.extract import Extract
+from pipeline_warehouse.task.extract import Extract
 
 import pandas as pd
 import pytz

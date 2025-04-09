@@ -25,7 +25,7 @@ class Transform:
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
-        if df_products.empty:
+        if not products:
             raise AirflowSkipException(f"Dataframe for 'products' is empty. Skipped...")
         else:
              # get "payload"
@@ -93,7 +93,7 @@ class Transform:
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
-        if df_stores.empty:
+        if not stores:
             raise AirflowSkipException(f"Dataframe for 'stores' is empty. Skipped...")
         else:
             df_stores = pd.json_normalize([msg['payload'] for msg in stores])
@@ -119,7 +119,7 @@ class Transform:
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
-        if df_staffs.empty:
+        if not staffs:
             raise AirflowSkipException(f"Dataframe for 'staffs' is empty. Skipped...")
         else:
             df_staffs = pd.json_normalize([msg['payload'] for msg in staffs])
@@ -147,7 +147,7 @@ class Transform:
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
-        if df_orders.empty:
+        if not orders:
             raise AirflowSkipException(f"Dataframe for 'orders' is empty. Skipped...")
         else:
             df_orders = pd.json_normalize([msg['payload'] for msg in orders])

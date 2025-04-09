@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       - POSTGRES_DB=${SRC_POSTGRES_DB}
-      - POSTGRES_USEfR=${SRC_POSTGRES_USER}
+      - POSTGRES_USER=${SRC_POSTGRES_USER}
       - POSTGRES_PASSWORD=${SRC_POSTGRES_PASSWORD}
     ports:
       - ${SRC_POSTGRES_PORT}:5432
@@ -16,6 +16,7 @@ services:
     volumes:
       - ./data:/docker-entrypoint-initdb.d
       - source-volume:/var/lib/postgresql/data
+    command: postgres -c wal_level=logical
 
 
 networks:

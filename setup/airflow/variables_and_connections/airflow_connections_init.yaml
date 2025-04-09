@@ -9,7 +9,7 @@ s3-conn:
   schema: ''
 source-db:
   conn_type: postgres
-  description: Bikes Store data source
+  description: Data Sources
   extra: ''
   host: sources
   login: postgres
@@ -34,3 +34,12 @@ warehouse:
   password: postgres
   port: 5432
   schema: postgres
+kafka_conn:
+  conn_type: kafka
+  description: Kafka Broker untuk Debezium dan Data Streaming
+  host: kafka
+  port: 9092
+  login: ''
+  password: ''
+  schema: ''
+  extra: '{}'

@@ -29,9 +29,9 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-      /usr/bin/mc rm -r --force myminio/${LOGS_BUCKET} myminio/${PACBIKES_BUCKET};
-      /usr/bin/mc mb myminio/${LOGS_BUCKET} myminio/${PACBIKES_BUCKET};
-      /usr/bin/mc policy download myminio/${LOGS_BUCKET} myminio/${PACBIKES_BUCKET};
+      /usr/bin/mc rm -r --force myminio/${LOGS_BUCKET} myminio/${BUCKET_NAME};
+      /usr/bin/mc mb myminio/${LOGS_BUCKET} myminio/${BUCKET_NAME};
+      /usr/bin/mc policy download myminio/${LOGS_BUCKET} myminio/${BUCKET_NAME};
       exit 0;
       "
     networks:

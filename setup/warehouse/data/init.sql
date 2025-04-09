@@ -1,3 +1,58 @@
+CREATE TABLE dim_product (
+    product_id SERIAL PRIMARY KEY,      
+    product_nk INT NOT NULL UNIQUE,      
+    product_name VARCHAR(255) NOT NULL,
+    brand_name VARCHAR(255) NOT NULL,
+    category_name VARCHAR(255) NOT NULL,
+    model_year INT NOT NULL,
+    list_price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),  
+    updated_at TIMESTAMP DEFAULT NOW() 
+);
+
+CREATE TABLE dim_customer (
+    customer_id SERIAL PRIMARY KEY,      
+    customer_nk INT NOT NULL UNIQUE,      
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(25),
+    email VARCHAR(255) NOT NULL,
+    street VARCHAR(255),
+    city VARCHAR(50),
+    state VARCHAR(25),
+    zip_code VARCHAR(5),
+    created_at TIMESTAMP DEFAULT NOW(),  
+    updated_at TIMESTAMP DEFAULT NOW()  
+);
+
+CREATE TABLE dim_store (
+    store_id SERIAL PRIMARY KEY,      
+    store_nk INT NOT NULL UNIQUE,      
+    store_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(25),
+    email VARCHAR(255),
+    street VARCHAR(255),
+    city VARCHAR(255),
+    state VARCHAR(10),
+    zip_code VARCHAR(5),
+    created_at TIMESTAMP DEFAULT NOW(), 
+    updated_at TIMESTAMP DEFAULT NOW() 
+);
+
+CREATE TABLE dim_staff (
+    staff_id SERIAL PRIMARY KEY,    
+    staff_nk INT NOT NULL UNIQUE,     
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(25),
+    active INT NOT NULL,               
+    manager_id INT,              
+    created_at TIMESTAMP DEFAULT NOW(),  
+    updated_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (manager_id) REFERENCES dim_staff (staff_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
 CREATE TABLE dim_date (
 	date_id int4 NOT NULL,
 	date_actual date NOT NULL,
@@ -26,93 +81,8 @@ CREATE TABLE dim_date (
 	weekend_indr varchar(20) NOT NULL,
 	CONSTRAINT dim_date_pkey PRIMARY KEY (date_id)
 );
-CREATE INDEX dim_date_date_actual_idx ON public.dim_date USING btree (date_actual);
 
-CREATE TABLE dim_product (
-    product_id SERIAL PRIMARY KEY,      
-    product_nk INT NOT NULL UNIQUE,      
-    product_name VARCHAR(255) NOT NULL,
-    brand_name VARCHAR(255) NOT NULL,
-    category_name VARCHAR(255) NOT NULL,
-    model_year INT NOT NULL,
-    list_price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),  
-    updated_at TIMESTAMP DEFAULT NOW() 
-);
-
-CREATE TABLE warehouse.dim_customer (
-    customer_id SERIAL PRIMARY KEY,      
-    customer_nk INT NOT NULL UNIQUE,      
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    phone VARCHAR(25),
-    email VARCHAR(255) NOT NULL,
-    street VARCHAR(255),
-    city VARCHAR(50),
-    state VARCHAR(25),
-    zip_code VARCHAR(5),
-    created_at TIMESTAMP DEFAULT NOW(),  
-    updated_at TIMESTAMP DEFAULT NOW()  
-);
-
-CREATE TABLE warehouse.dim_store (
-    store_id SERIAL PRIMARY KEY,      
-    store_nk INT NOT NULL UNIQUE,      
-    store_name VARCHAR(255) NOT NULL,
-    phone VARCHAR(25),
-    email VARCHAR(255),
-    street VARCHAR(255),
-    city VARCHAR(255),
-    state VARCHAR(10),
-    zip_code VARCHAR(5),
-    created_at TIMESTAMP DEFAULT NOW(), 
-    updated_at TIMESTAMP DEFAULT NOW() 
-);
-
-CREATE TABLE warehouse.dim_staff (
-    staff_id SERIAL PRIMARY KEY,    
-    staff_nk INT NOT NULL UNIQUE,     
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(25),
-    active INT NOT NULL,               
-    manager_id INT,              
-    created_at TIMESTAMP DEFAULT NOW(),  
-    updated_at TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (manager_id) REFERENCES warehouse.dim_staff (staff_id) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
-CREATE TABLE warehouse.dim_date (
-	date_id int4 NOT NULL,
-	date_actual date NOT NULL,
-	day_suffix varchar(4) NOT NULL,
-	day_name varchar(9) NOT NULL,
-	day_of_year int4 NOT NULL,
-	week_of_month int4 NOT NULL,
-	week_of_year int4 NOT NULL,
-	week_of_year_iso bpchar(10) NOT NULL,
-	month_actual int4 NOT NULL,
-	month_name varchar(9) NOT NULL,
-	month_name_abbreviated bpchar(3) NOT NULL,
-	quarter_actual int4 NOT NULL,
-	quarter_name varchar(9) NOT NULL,
-	year_actual int4 NOT NULL,
-	first_day_of_week date NOT NULL,
-	last_day_of_week date NOT NULL,
-	first_day_of_month date NOT NULL,
-	last_day_of_month date NOT NULL,
-	first_day_of_quarter date NOT NULL,
-	last_day_of_quarter date NOT NULL,
-	first_day_of_year date NOT NULL,
-	last_day_of_year date NOT NULL,
-	mmyyyy bpchar(6) NOT NULL,
-	mmddyyyy bpchar(10) NOT NULL,
-	weekend_indr varchar(20) NOT NULL,
-	CONSTRAINT dim_date_pkey PRIMARY KEY (date_id)
-);
-
-CREATE TABLE warehouse.fact_order (
+CREATE TABLE fact_order (
     order_id SERIAL PRIMARY KEY,   
     order_nk INT NOT NULL,             
     item_nk INT NOT NULL,             
@@ -130,13 +100,13 @@ CREATE TABLE warehouse.fact_order (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(), 
     UNIQUE (order_nk, item_nk),         
-    FOREIGN KEY (customer_id) REFERENCES warehouse.dim_customer (customer_id),
-    FOREIGN KEY (store_id) REFERENCES warehouse.dim_store (store_id),
-    FOREIGN KEY (staff_id) REFERENCES warehouse.dim_staff (staff_id),
-    FOREIGN KEY (product_id) REFERENCES warehouse.dim_product (product_id),
-    FOREIGN KEY (order_date) REFERENCES warehouse.dim_date (date_id),
-    FOREIGN KEY (required_date) REFERENCES warehouse.dim_date (date_id),
-    FOREIGN KEY (shipped_date) REFERENCES warehouse.dim_date (date_id)
+    FOREIGN KEY (customer_id) REFERENCES dim_customer (customer_id),
+    FOREIGN KEY (store_id) REFERENCES dim_store (store_id),
+    FOREIGN KEY (staff_id) REFERENCES dim_staff (staff_id),
+    FOREIGN KEY (product_id) REFERENCES dim_product (product_id),
+    FOREIGN KEY (order_date) REFERENCES dim_date (date_id),
+    FOREIGN KEY (required_date) REFERENCES dim_date (date_id),
+    FOREIGN KEY (shipped_date) REFERENCES dim_date (date_id)
 );
 
 

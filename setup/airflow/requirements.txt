@@ -10,3 +10,4 @@ requests
 scikit-learn
 boto3
 confluent-kafka
+apache-airflow-providers-apache-kafka==1.6.1

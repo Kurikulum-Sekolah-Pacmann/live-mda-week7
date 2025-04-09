@@ -79,11 +79,6 @@ class Transform:
             #      'updated_at'
             # ]].drop_duplicates(subset=['customer_nk'])
 
-            ti = kwargs['ti']
-            ti.xcom_push(
-                key=f"transfor_dim_customer",
-                value={"status": "success", "sample_data": df[0]}
-            )
             return df         
         
     @staticmethod

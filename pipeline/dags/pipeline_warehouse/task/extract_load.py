@@ -35,7 +35,7 @@ class Extract:
         else:
             raise AirflowException(f"Topic name '{topic}' format tidak sesuai (source.schema.table_name)")
 
-        # Initialize Kafka consumer using confluent_kafka
+        # Initialize Kafka consumer
         consumer = Consumer({
             'bootstrap.servers': 'kafka:9092',
             'group.id': f'datalake_consumer-{topic}',

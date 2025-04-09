@@ -43,8 +43,6 @@ def create_topic_tasks(**kwargs):
         raise
 
 
-# Get topics at DAG definition time to create the task graph
-# This is critical for the Airflow UI to display the tasks
 PREDEFINED_TOPICS = get_kafka_topics()
 
 

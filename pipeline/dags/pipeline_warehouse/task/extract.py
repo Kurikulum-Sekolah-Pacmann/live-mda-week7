@@ -10,6 +10,7 @@ from confluent_kafka import Consumer
 from helper.s3 import S3
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from datetime import timedelta
+import uuid
 
 
 
@@ -42,9 +43,13 @@ class Extract:
             raise AirflowException(f"Topic name '{topic}' format tidak sesuai (source.schema.table_name)")
 
         # Initialize Kafka consumer
+        if topic == 'brands' or topic == 'categories':
+            id_name = f"{topic}-{uuid.uuid4()}"
+        else:
+            id_name = topic
         consumer = Consumer({
             'bootstrap.servers': 'kafka:9092',
-            'group.id': f'warehouse_consumer-{topic}',
+            'group.id': f'warehouse_consumer-{id_name}',
             'auto.offset.reset': 'earliest',
             'enable.auto.commit': False,
         })

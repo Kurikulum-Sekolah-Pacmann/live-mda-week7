@@ -73,13 +73,18 @@ class Transform:
                     'customer_id': 'customer_nk'
                 })
             df['updated_at'] = pd.Timestamp.now()   
-            df_dim_customer = df[[
-                'customer_nk', 'first_name', 'last_name', 'phone',
-                'email', 'street', 'city', 'state', 'zip_code',
-                 'updated_at'
-            ]].drop_duplicates(subset=['customer_nk'])
+            # df_dim_customer = df[[
+            #     'customer_nk', 'first_name', 'last_name', 'phone',
+            #     'email', 'street', 'city', 'state', 'zip_code',
+            #      'updated_at'
+            # ]].drop_duplicates(subset=['customer_nk'])
 
-            return df_dim_customer         
+            ti = kwargs['ti']
+            ti.xcom_push(
+                key=f"transfor_dim_customer",
+                value={"status": "success", "sample_data": df[0]}
+            )
+            return df         
         
     @staticmethod
     def _dim_store(**kwargs) -> pd.DataFrame:

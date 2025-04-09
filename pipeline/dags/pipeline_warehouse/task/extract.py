@@ -38,7 +38,7 @@ class Extract:
         # Initialize Kafka consumer
         consumer = Consumer({
             'bootstrap.servers': 'kafka:9092',
-            'group.id': f'datalake_consumer-{topic}',
+            'group.id': f'warehouse_consumer-{topic}',
             'auto.offset.reset': 'earliest',
             'enable.auto.commit': False,
         })
@@ -98,7 +98,7 @@ class Extract:
             consumer.close()
             logging.info(f"Finished consuming from {topic}, total messages: {count}")
 
-        # If no messages, skip writing to MinIO
+        # If no messages, skip
         if not messages:
             logging.info(f"No messages found for {schema}.{table}")
             ti.xcom_push(
@@ -110,29 +110,77 @@ class Extract:
             try:
                 logging.info(f"Converting {len(messages)} messages to DataFrame for {schema}.{table}")
                 df = pd.DataFrame(messages)
-                if 'schema' in df.columns:
-                    df['schema'] = df['schema'].astype(str)
-
-                # Convert to Parquet
-                parquet_buffer = BytesIO()
-                df.to_parquet(parquet_buffer, index=False)
-                parquet_buffer.seek(0)
-
-                # Upload to MinIO
-                logging.info(f"Uploading {schema}.{table} data to MinIO: {object_key}")
-                S3.push(
-                    aws_conn_id='s3-conn',
-                    bucket_name='transactions',
-                    key=object_key,
-                    string_data=parquet_buffer.getvalue()  # Use parquet binary data
-                )
+                df = df.astype(str)
+                
 
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
                     value={"status": "success", "data_date": formatted_date, "record_count": len(messages)}
                 )
-                logging.info(f"Successfully processed and stored {len(messages)} records for {schema}.{table}")
+                
+                return df['payload']
 
             except Exception as e:
                 logging.error(f"Error when writing {schema}.{table} to MinIO: {str(e)}")
                 raise AirflowException(f"Error when writing {schema}.{table} to MinIO: {str(e)}")
+            
+    
+    @staticmethod
+    def _dwh(schema: str, table_name: str, **kwargs) -> None:
+        """
+        Extract data from a PostgreSQL database
+
+        Parameters:
+        schema (str): The schema name.
+        table_name (str): The table name.
+        kwargs: Additional keyword arguments.
+        """
+        try:
+            # Get execution date and convert to Jakarta timezone
+            ti = kwargs['ti']
+            execution_date = ti.execution_date
+            tz = pytz.timezone('Asia/Jakarta')
+            execution_date = execution_date.astimezone(tz)
+            data_date = (pd.to_datetime(execution_date) - timedelta(days=1)).strftime("%Y-%m-%d")
+            
+            # Connect to PostgreSQL database
+            pg_hook = PostgresHook(postgres_conn_id='warehouse')
+            connection = pg_hook.get_conn()
+            cursor = connection.cursor()
+
+            # Formulate the extract query
+            extract_query = f"SELECT * FROM {schema}.{table_name}"
+
+            # Execute the query and fetch results
+            cursor.execute(extract_query)
+            result = cursor.fetchall()
+            column_list = [desc[0] for desc in cursor.description]
+            cursor.close()
+            connection.commit()
+            connection.close()
+
+            
+            # Convert results to DataFrame
+            df = pd.DataFrame(result, columns=column_list)
+
+            # Check if DataFrame is empty and handle accordingly
+            if df.empty:
+                ti.xcom_push(
+                    key=f"extract_dwh_info-{schema}.{table_name}", 
+                    value={"status": "skipped", "data_date": execution_date}
+                )
+                raise AirflowSkipException(f"Table '{schema}.{table_name}' doesn't have data. Skipped...")
+            else:
+                ti.xcom_push(
+                    key=f"extract_dwh_info-{schema}.{table_name}", 
+                    value={"status": "success", "data_date": execution_date}
+                )
+                
+                return df
+            
+        except AirflowSkipException as e:
+            raise e
+        
+        except AirflowException as e:
+            raise AirflowException(f"Error when extracting {schema}.{table_name} : {str(e)}")
+        

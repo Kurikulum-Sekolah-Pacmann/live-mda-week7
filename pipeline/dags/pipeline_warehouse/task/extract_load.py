@@ -72,12 +72,12 @@ class Extract:
                 try:
                     message_data = json.loads(msg.value())
                     messages.append(message_data)
-                except (json.JSONDecodeError, TypeError):
+                except Exception as e:
                     # If not JSON, use the raw message
                     try:
                         messages.append({'raw_data': msg.value().decode('utf-8', errors='ignore')})
-                    except (AttributeError, UnicodeDecodeError):
-                        messages.append({'raw_data': str(msg.value())})
+                    except Exception as e:
+                        raise AirflowException(f"Kafka error: {msg.error()}")
                 
                 count += 1
 

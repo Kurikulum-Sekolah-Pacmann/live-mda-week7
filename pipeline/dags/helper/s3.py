@@ -13,7 +13,7 @@ class S3:
             raise AirflowSkipException(f"Key {key} already exists.")
         
         # If the key does not exist, push the data
-        hook.load_string(string_data, key, bucket_name)
+        hook.load_bytes(string_data, key, bucket_name)
     
     @staticmethod
     def pull(aws_conn_id, bucket_name, key):

@@ -64,7 +64,7 @@ def load_wrapper(table_name, primary_key, **context):
         print(f"No data available for {table_name}")
 
 @task_group(group_id='etl')
-def main_etl(incremental):
+def main_etl():
     """
     Main task group for ETL process.
     

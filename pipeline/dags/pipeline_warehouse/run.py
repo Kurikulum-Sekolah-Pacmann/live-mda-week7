@@ -12,27 +12,18 @@ default_args = {
 
 # Define the DAG with its properties
 @dag(
-    dag_id='pipeline_data_lake',
-    description='Extract data and load raw data into data lake',
+    dag_id='pipeline_warehouse',
+    description='Streaming Data to Warehouse',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
     schedule="@daily",
     catchup=False,
     default_args=default_args
 )
-def pipeline_data_lake():
+def pipeline_warehouse():
     """
-    DAG function to extract data and load it into data lake.
-    It also triggers the next DAG
+    Streaming Data to Warehouse
     """
-    # # Define the task to trigger the next DAG
-    # trigger_warehouse = TriggerDagRunOperator(
-    #     task_id='trigger_warehouse',
-    #     trigger_dag_id="pipeline_warehouse",
-    #     trigger_rule="none_failed"
-    # )
-
-    # Define the task dependencies
     consume_and_store()
 
 # Instantiate the DAG
-pipeline_data_lake()
+pipeline_warehouse()

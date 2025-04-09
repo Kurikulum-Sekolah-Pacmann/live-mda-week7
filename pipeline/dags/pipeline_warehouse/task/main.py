@@ -7,7 +7,7 @@ import logging
 # Kafka configuration
 BOOTSTRAP_SERVERS = 'kafka:9092'
 TOPIC_PREFIX = 'source'
-CONSUMER_GROUP = 'minio-consumer'
+CONSUMER_GROUP = 'etl-consumer'
 
 def get_kafka_topics() -> list:
     """Get all Kafka topics based on prefix using confluent_kafka"""

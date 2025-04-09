@@ -108,18 +108,18 @@ class Extract:
             raise AirflowSkipException(f"Table '{schema}.{table}' doesn't have new data. Skipped...")
         else:
             try:
-                logging.info(f"Converting {len(messages)} messages to DataFrame for {schema}.{table}")
-                df = pd.DataFrame(messages)
-                for col in df.select_dtypes(include=['object']).columns:
-                    df[col] = df[col].astype(str)
+                # df = pd.DataFrame(messages)
+                # for col in df.select_dtypes(include=['object']).columns:
+                #     df[col] = df[col].astype(str)
                 
-
                 ti.xcom_push(
                     key=f"extract_info-{schema}.{table}",
                     value={"status": "success", "data_date": formatted_date, "record_count": len(messages), "message": df['payload'].to_json(orient='records')}
                 )
-                
-                return df
+                return messages
+
+
+
 
             except Exception as e:
                 logging.error(f"Error: {str(e)}")

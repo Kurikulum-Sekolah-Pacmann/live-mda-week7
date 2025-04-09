@@ -59,15 +59,16 @@ class Transform:
         Transform customer data.
         """
         try:
-            df_customers = Extract._kafka(topic='source.sales.customers', **kwargs)
-
+            customer = Extract._kafka(topic='source.sales.customers', **kwargs)
         except Exception as e:
             raise AirflowException(f"Error: {str(e)}")
 
-        if df_customers.empty:
+        if not customer:
             raise AirflowSkipException(f"Dataframe for 'customers' is empty. Skipped...")
         else:
-            df_customers = df_customers['payload']
+            #msg to dataframe
+            df_customers = pd.json_normalize(customer, record_path=None, meta=None)[['payload']]
+            df_customers = pd.json_normalize(df_customers['payload'])
             # Rename kolom sesuai warehouse
             df = df_customers.rename(columns={
                     'customer_id': 'customer_nk'

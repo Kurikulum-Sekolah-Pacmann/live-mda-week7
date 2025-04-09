@@ -12,12 +12,12 @@ default_args = {
 
 # Define the DAG with its properties
 @dag(
-    dag_id='pipeline_data_lake',
-    description='Extract data and load raw data into data lake',
+    dag_id='streaming_kafka_to_datalake',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
-    schedule="@daily",
+    schedule="@once",  # biar tidak terjadwal ulang
     catchup=False,
-    default_args=default_args
+    default_args=default_args,
+    tags=["streaming","data_lake"]
 )
 def pipeline_data_lake():
     """
@@ -25,14 +25,14 @@ def pipeline_data_lake():
     It also triggers the next DAG
     """
     # # Define the task to trigger the next DAG
-    # trigger_warehouse = TriggerDagRunOperator(
-    #     task_id='trigger_warehouse',
-    #     trigger_dag_id="pipeline_warehouse",
-    #     trigger_rule="none_failed"
-    # )
+    trigger_warehouse = TriggerDagRunOperator(
+        task_id='trigger_warehouse',
+        trigger_dag_id="pipeline_warehouse",
+        trigger_rule="none_failed"
+    )
 
     # Define the task dependencies
-    consume_and_store()
+    consume_and_store() >> trigger_warehouse
 
 # Instantiate the DAG
 pipeline_data_lake()

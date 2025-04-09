@@ -14,9 +14,10 @@ default_args = {
     dag_id='pipeline_warehouse',
     description='Streaming data and load into warehouse area',
     start_date=datetime(2024, 9, 1, tz="Asia/Jakarta"),
-    schedule="@daily",
+    schedule="@once",  # Hanya dijalankan sekali, lalu looping di task
     catchup=False,
-    default_args=default_args
+    default_args=default_args,
+    tags=["streaming", "warehouse"]
 )
 def etl_warehouse():
     """

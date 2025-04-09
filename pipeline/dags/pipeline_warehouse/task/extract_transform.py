@@ -128,11 +128,11 @@ class Transform:
                     'staff_id': 'staff_nk'
                 })
             df['updated_at'] = pd.Timestamp.now()   
-            df_dim_staff = df[[
-                    'staff_nk', 'first_name', 'last_name', 'phone',
-                    'email', 'street', 'city', 'state', 'zip_code',
-                    'updated_at'
-                ]].drop_duplicates(subset=['staff_nk'])
+            df_dim_staff = df_staffs[[
+                'staff_nk', 'first_name', 'last_name', 'email', 'phone',
+                'active', 'manager_id', 'created_at', 'updated_at'
+            ]].drop_duplicates(subset=['staff_nk'])
+
             return df_dim_staff
     
     @staticmethod
